@@ -1,0 +1,48 @@
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🏷️ Generate version
+        id: version
+        uses: Nyffels-IT/github-actions-calver-version-generator@v1.0.1
+
+      - name: 🐳 Build local test image
+        run: |
+          docker build -t ocr-test .        
+
+      - name: ✅ Test - check health
+        run: |
+          docker run -d -p 8000:8000 --name imgrep imgrep-test
+          sleep 5
+          curl -f http://localhost:8000/health          
+
+      - name: ✅ Test - Swagger test
+        run: |
+          curl --fail http://localhost:8000/docs          
+
+      - name: 🧹 Cleanup local container
+        run: docker rm -f ocr-test
+
+      - name: 🐳 Rebuild with version tag
+        run: |
+          docker build -t nyffels/easyocr-microservice:latest -t nyffels/easyocr-microservice:${{ steps.version.outputs.version }} .
+
+      - name: 🔐 Docker Login
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: 🚀 Push to Docker Hub
+        run: |
+          docker push nyffels/easyocr-microservice:latest
+          docker push nyffels/easyocr-microservice:${{ steps.version.outputs.version }}        
