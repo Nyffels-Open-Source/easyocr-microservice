@@ -24,7 +24,7 @@ jobs:
 
       - name: ✅ Test - check health
         run: |
-          docker run -d -p 8000:8000 --name imgrep imgrep-test
+          docker run -d -p 8000:8000 --name ocr ocr-test
           sleep 5
           curl -f http://localhost:8000/health          
 
