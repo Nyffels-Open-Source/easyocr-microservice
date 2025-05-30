@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+easyocr
+python-multipart
+pydantic
+imageio
+imageio-ffmpeg
+pillow
+opencv-python
+langdetect
