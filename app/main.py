@@ -27,6 +27,7 @@ app.add_middleware(
 
 @app.post(
     "/ocr",
+    tags=["ocr"]
     response_model=OCRDocumentResult,
     summary="Perform OCR on uploaded images",
     description="Accepts multiple images that represent pages of a document. Performs OCR and returns the extracted text and detected language for the entire document."
@@ -52,6 +53,7 @@ async def ocr_images(files: List[UploadFile] = File(...)):
 
 @app.post(
     "/ocr-zip",
+    tags=["ocrzip"]
     response_model=OCRDocumentResult,
     summary="Perform OCR on a zip file of images",
     description="Accepts a ZIP archive containing image files. Extracts and processes all supported images inside the archive."
@@ -87,6 +89,7 @@ async def ocr_zip(file: UploadFile = File(...)):
 
 @app.get(
     "/health",
+    tags=["health"]
     summary="Health check",
     description="Returns OK if the OCR service is running."
 )
