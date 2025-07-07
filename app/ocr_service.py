@@ -14,12 +14,12 @@ def detect_language(text: str) -> str:
     except Exception:
         return 'en'
 
-def extract_document_text(image_paths: List[Path]) -> OCRDocumentResult:
+def extract_document_text(image_paths: List[Path], psm: int = 6) -> OCRDocumentResult:
     reader = easyocr.Reader(['en'], gpu=False)
     all_text = []
 
     for path in image_paths:
-        results = reader.readtext(str(path))
+        results = reader.readtext(str(path), detail=1, paragraph=False, config=f'--psm {psm}')
         all_text.extend([item[1] for item in results])
 
     combined_text = ' '.join(all_text)
