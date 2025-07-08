@@ -26,10 +26,7 @@ app.add_middleware(
 )
 
 @app.post("/ocr", tags=["ocr"], response_model=OCRDocumentResult, summary="Perform OCR on uploaded images", description="Accepts multiple images that represent pages of a document. Performs OCR and returns the extracted text and detected language for the entire document.")
-async def ocr_images(
-    files: List[UploadFile] = File(...),
-    psm: int = Query(6, description="Optional page segmentation mode (psm) for OCR engine. Default is 6."),
-):
+async def ocr_images(files: List[UploadFile] = File(...)):
     image_paths = []
 
     try:
@@ -41,7 +38,7 @@ async def ocr_images(
                 f.write(await file.read())
             image_paths.append(path)
 
-        result = extract_document_text(image_paths, psm=psm)
+        result = extract_document_text(image_paths)
         return result
 
     finally:
@@ -49,10 +46,7 @@ async def ocr_images(
             path.unlink(missing_ok=True)
 
 @app.post("/ocr-zip", tags=["ocrzip"], response_model=OCRDocumentResult, summary="Perform OCR on a zip file of images", description="Accepts a ZIP archive containing image files. Extracts and processes all supported images inside the archive.")
-async def ocr_zip(
-    file: UploadFile = File(...),
-    psm: int = Query(6, description="Optional page segmentation mode (psm) for OCR engine. Default is 6."),
-):
+async def ocr_zip(file: UploadFile = File(...)):
     if not file.filename.endswith(".zip"):
         return {"error": "Only .zip files are supported."}
 
@@ -75,7 +69,7 @@ async def ocr_zip(
         if not image_paths:
             return {"error": "No supported image files found in the ZIP."}
 
-        result = extract_document_text(image_paths, psm=psm)
+        result = extract_document_text(image_paths)
         return result
 
     finally:
